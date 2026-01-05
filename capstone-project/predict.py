@@ -1,36 +1,36 @@
+import io
 import numpy as np
 import onnxruntime as ort
 from flask import Flask, request, jsonify
 from PIL import Image
-import io
 
 app = Flask(__name__)
 
-# Load ONNX Model
-ONNX_MODEL_PATH = "leukemia_model.onnx"
-session = ort.InferenceSession(ONNX_MODEL_PATH)
-input_name = session.get_inputs()[0].name
+# --- Load Model ---
+MODEL_PATH = "leukemia_model.onnx"
+# Переименовали в ORT_SESSION (как ждет тест)
+ORT_SESSION = ort.InferenceSession(MODEL_PATH)
+INPUT_NAME = ORT_SESSION.get_inputs()[0].name
 
 def preprocess_image(image_bytes):
     """
-    Same preprocessing as in training: Resize(224) -> Normalize(ImageNet)
+    Подготовка изображения: Resize -> Normalize -> Transpose
     """
     img = Image.open(io.BytesIO(image_bytes)).convert('RGB')
     img = img.resize((224, 224))
     
-    x = np.array(img, dtype=np.float32) / 255.0
-    
-    # ImageNet Mean and Std
+    # Normalize (ImageNet stats)
+    img_data = np.array(img).astype('float32') / 255.0
     mean = np.array([0.485, 0.456, 0.406], dtype=np.float32)
     std = np.array([0.229, 0.224, 0.225], dtype=np.float32)
-    x = (x - mean) / std
+    img_data = (img_data - mean) / std
     
     # Transpose (H, W, C) -> (C, H, W)
-    x = x.transpose(2, 0, 1)
+    img_data = img_data.transpose(2, 0, 1)
     
-    # Add batch dimension -> (1, C, H, W)
-    x = np.expand_dims(x, axis=0)
-    return x
+    # Add Batch dimension
+    img_data = np.expand_dims(img_data, axis=0)
+    return img_data
 
 @app.route('/predict', methods=['POST'])
 def predict():
@@ -42,29 +42,34 @@ def predict():
         return jsonify({'error': 'No selected file'}), 400
 
     try:
-        # Preprocess
         input_tensor = preprocess_image(file.read())
         
-        # Inference ONNX
-        outputs = session.run(None, {input_name: input_tensor})
+        # Inference using global ORT_SESSION
+        outputs = ORT_SESSION.run(None, {INPUT_NAME: input_tensor})
         logits = outputs[0][0]
         
         # Softmax
         probs = np.exp(logits) / np.sum(np.exp(logits))
         
-        # Classes: 0 = Normal, 1 = Leukemia (based on train.py sorting)
-        classes = ['Normal (HEM)', 'Leukemia (ALL)']
+        # Classes
+        classes = ['Normal', 'Leukemia']
         pred_idx = np.argmax(probs)
         
-        result = {
-            'class': classes[pred_idx],
-            'probability_leukemia': float(probs[1]),
-            'probability_normal': float(probs[0])
-        }
-        return jsonify(result)
-
+        return jsonify({
+            'prediction': classes[pred_idx],
+            'probability': float(probs[pred_idx]),
+            'details': {
+                'normal_prob': float(probs[0]),
+                'leukemia_prob': float(probs[1])
+            }
+        })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+# --- Health Check (Добавили для тестов) ---
+@app.route('/health', methods=['GET'])
+def health():
+    return jsonify({'status': 'ok'})
 
 if __name__ == "__main__":
     app.run(debug=True, host='0.0.0.0', port=9696)

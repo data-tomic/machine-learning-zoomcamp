@@ -1,0 +1,19 @@
+# Python artifacts
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Virtual Environments
+.venv/
+.venv_fix/
+
+# Data
+temp_data/
+
+# Heavy models (Оставляем ONNX для Docker, PTH можно игнорировать, чтобы не раздувать репо)
+*.pth
+leukemia_model.onnx.data
+
+# System
+.DS_Store
+archive/

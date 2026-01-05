@@ -207,3 +207,12 @@ marimo/_lsp/
 __marimo__/
 
 capstone-project/temp_data/
+
+__pycache__/
+*.pyc
+.venv/
+.venv_fix/
+temp_data/
+*.pth
+*.onnx
+.ipynb_checkpoints/
