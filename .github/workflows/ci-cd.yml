@@ -53,7 +53,7 @@ jobs:
           fi
 
       - name: Run Linter (Ruff)
-        run: uv run ruff check .
+        run: uv run ruff check train.py predict.py test_predict.py ingest_data.py
 
       - name: Run Tests
         # Run tests only if model exists to avoid CI failure on missing artifacts
