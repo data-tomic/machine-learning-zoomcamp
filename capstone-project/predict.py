@@ -48,8 +48,10 @@ def predict():
         outputs = ORT_SESSION.run(None, {INPUT_NAME: input_tensor})
         logits = outputs[0][0]
         
-        # Softmax
-        probs = np.exp(logits) / np.sum(np.exp(logits))
+        # Numerically stable Softmax
+        # Subtracting the max logit prevents np.exp() from overflowing to infinity
+        exp_logits = np.exp(logits - np.max(logits))
+        probs = exp_logits / np.sum(exp_logits)
         
         # Classes
         classes = ['Normal', 'Leukemia']

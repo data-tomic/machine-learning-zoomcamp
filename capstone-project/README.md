@@ -1,6 +1,6 @@
 # Leukemia Classification Service
 
-[![CI/CD Pipeline](https://github.com/splekhov/machine-learning-zoomcamp/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/splekhov/machine-learning-zoomcamp/actions/workflows/ci-cd.yml)
+[![CI/CD Pipeline](https://github.com/data-tomic/machine-learning-zoomcamp/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/data-tomic/machine-learning-zoomcamp/actions/workflows/ci-cd.yml)
 
 This project classifies microscopic images of blood cells into two categories: **Normal (HEM)** and **Leukemia (ALL)** using a Convolutional Neural Network (EfficientNet-B0).
 
@@ -78,4 +78,22 @@ curl -X POST -F "file=@path/to/image.bmp" http://localhost:9696/predict
   }
 }
 ```
- 
+## Development and Automation
+
+### Using the Makefile
+For ease of use, a `Makefile` is provided to automate common tasks:
+*   `make setup`: Install dependencies using `uv`.
+*   `make test`: Run all tests (unit and integration).
+*   `make build`: Build the Docker image.
+*   `make run-docker`: Run the service locally via Docker.
+
+### Automated Testing
+The project includes a test suite (`test_predict.py`) that performs:
+1.  **Health Check**: Verifies the API is reachable.
+2.  **Model Loading**: Ensures the ONNX session initializes correctly.
+3.  **End-to-End Prediction**: Generates a synthetic image and verifies the full inference pipeline (Preprocessing -> ONNX -> Response).
+
+### Kubernetes (Bonus)
+If you have a local cluster (like Minikube), you can deploy the service using the provided manifests:
+```bash
+kubectl apply -f kube/ 

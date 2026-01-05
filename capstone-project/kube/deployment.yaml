@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: leukemia-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: leukemia
+  template:
+    metadata:
+      labels:
+        app: leukemia
+    spec:
+      containers:
+      - name: leukemia-app
+        # Используем твой образ из GHCR
+        image: ghcr.io/data-tomic/machine-learning-zoomcamp:latest
+        ports:
+        - containerPort: 9696
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
