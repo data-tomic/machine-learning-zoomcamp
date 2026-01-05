@@ -6,10 +6,12 @@ on:
     # Trigger only when files in the project folder change
     paths:
       - 'capstone-project/**'
+      - '.github/workflows/**'
   pull_request:
     branches: [ "main", "master" ]
     paths:
       - 'capstone-project/**'
+      - '.github/workflows/**'
 
 env:
   REGISTRY: ghcr.io

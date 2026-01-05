@@ -78,3 +78,4 @@ curl -X POST -F "file=@path/to/image.bmp" http://localhost:9696/predict
   }
 }
 ```
+ 
