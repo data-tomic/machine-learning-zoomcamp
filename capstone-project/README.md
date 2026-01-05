@@ -1,5 +1,7 @@
 # Leukemia Classification Service
 
+[![CI/CD Pipeline](https://github.com/splekhov/machine-learning-zoomcamp/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/splekhov/machine-learning-zoomcamp/actions/workflows/ci-cd.yml)
+
 This project classifies microscopic images of blood cells into two categories: **Normal (HEM)** and **Leukemia (ALL)** using a Convolutional Neural Network (EfficientNet-B0).
 
 The project is implemented using **PyTorch** for training and **ONNX Runtime** for high-performance inference. Dependency management is handled by **uv**.
